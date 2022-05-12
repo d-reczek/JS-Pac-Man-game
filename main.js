@@ -160,8 +160,6 @@ function init() {
       gameOver();
       win();
       renderHighScore();
-
-      console.log("iswin", isWin);
     });
   }
   pacManMove();
@@ -667,7 +665,6 @@ function init() {
       highsScoreSpan.textContent = highScoreLS;
       localStorage.setItem("highScore", highscore);
     } else if (isWin === true && score < highScoreLS) {
-      console.log("niedziała");
     }
   }
 
@@ -745,7 +742,6 @@ function init() {
 
     //move up
     btnUp.addEventListener("click", event => {
-      console.log("Up");
       squares[pacManPosition].classList.remove(
         "pac-man",
         "pac-man-right",
@@ -777,7 +773,6 @@ function init() {
 
     //move down
     btnDown.addEventListener("click", event => {
-      console.log("Up");
       squares[pacManPosition].classList.remove(
         "pac-man",
         "pac-man-right",
