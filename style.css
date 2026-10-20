@@ -4,7 +4,7 @@
   --pac-man-color: #ffcc00;
   --bcg: rgb(0, 0, 0);
   --wall: rgb(0, 0, 255);
-  --width-height: 704px;
+  --width-height: 700px;
   --border-heigh: 2px;
   --square: 25px;
 }
@@ -12,7 +12,10 @@
 body {
   font-family: "Press Start 2P", cursive;
   background-color: var(--bcg);
+  margin: 0;
+  padding: 10px;
 }
+
 /* title styles  */
 
 .game-title-container {
@@ -22,56 +25,68 @@ body {
   border-bottom: none;
   margin: 0 auto;
 }
+
 .title-container {
   background-color: orange;
-  /* width: 700px; */
-  /* margin: 0 auto; */
 }
+
 .title-container p {
   text-align: center;
   padding: 10px;
-  font-size: 6rem;
+  font-size: 4rem; /* Zmniejszone, żeby nie rozjeżdżało się na mniejszych ekranach */
   color: yellow;
+  margin: 0;
 }
 
 /* score board styles */
 .score-board-container {
   background-color: red;
-  /* width: 700px; */
-  /* margin: 0 auto; */
 }
+
 .score-board {
   text-align: center;
-  font-size: 2rem;
+  font-size: 1.5rem;
   margin: 0;
   padding: 10px;
+  color: white;
 }
 
 .highscore-container {
   text-align: center;
+  color: white;
+  font-size: 1.2rem;
+  padding: 5px;
 }
 
-/* styles conected with win/lose game  */
+/* styles connected with win/lose game */
 
 .wrapper {
   width: var(--width-height);
+  max-width: 100%;
   position: relative;
   margin: 0 auto;
 }
+
 .win {
   position: absolute;
   left: 10%;
   top: 200px;
   display: none;
+  z-index: 10;
 }
+
 .win-container p {
-  font-size: 10rem;
+  font-size: 6rem;
   color: red;
+  text-shadow: 3px 3px white;
 }
 
 .grid-container {
-  position: absolute;
+  position: relative;
   margin: 0 auto;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 /* grid elements and characters styles*/
@@ -79,8 +94,8 @@ body {
 .grid {
   background-color: var(--bcg);
   display: grid;
-  grid-template-columns: repeat(28, 25px); /* 28 kolumn po 25px = 700px */
-  grid-template-rows: repeat(31, 25px);    /* 31 wierszy po 25px = 775px */
+  grid-template-columns: repeat(28, var(--square));
+  grid-template-rows: repeat(31, var(--square));
   width: 700px;
   height: 775px;
   border: var(--border-heigh) solid white;
@@ -93,80 +108,66 @@ body {
   height: var(--square);
   box-sizing: border-box;
 }
+
 .pac-dot {
   box-sizing: border-box;
   background-color: var(--pac-man-color);
   border: 10px solid var(--bcg);
   border-radius: 15px;
 }
+
 .wall {
   box-sizing: border-box;
   background-color: var(--wall);
-  /* border: 1px solid var(--bcg); */
 }
+
 .ghost-lair {
-  /* background-color: orange; */
+  /*, puste pole dla bazy duchów */
 }
+
 .power-pellet {
   box-sizing: border-box;
   background-color: var(--pac-man-color);
   border: 5px solid var(--bcg);
   border-radius: 15px;
 }
-.pac-man {
-  background-image: url(./img/pac-man-left.png);
+
+/* Style bazowe dla Pac-Mana */
+.pac-man,
+.pac-man-right,
+.pac-man-left,
+.pac-man-up,
+.pac-man-down {
   background-repeat: no-repeat;
   background-size: contain;
-  /* background-color: var(--pac-man-color); */
-  /* height: 25; */
-  /* width: 25; */
-  /* border-radius: 20px; */
 }
-.pac-man-right {
-  background-image: url(./img//pac-man-right.png);
-  /* background-repeat: no-repeat;
-  background-size: contain;
-  /* background-color: var(--pac-man-color); */
-  /* height: 25;
-  width: 25;
-  border-radius: 20px; */
-}
+
+.pac-man,
 .pac-man-left {
   background-image: url(./img/pac-man-left.png);
-  /* background-repeat: no-repeat;
-  background-size: contain;
-  /* background-color: var(--pac-man-color); */
-  /* height: 25;
-  width: 25;
-  border-radius: 20px; */
 }
+
+.pac-man-right {
+  background-image: url(./img/pac-man-right.png);
+}
+
 .pac-man-up {
   background-image: url(./img/pac-man-up.png);
-  /* background-repeat: no-repeat;
-  background-size: contain;
-  /* background-color: var(--pac-man-color); */
-  /* height: 25;
-  width: 25;
-  border-radius: 20px; */
 }
+
 .pac-man-down {
   background-image: url(./img/pac-man-down.png);
-  /* background-repeat: no-repeat;
-  background-size: contain;
-  /* background-color: var(--pac-man-color); */
-  /* height: 25;
-  width: 25;
-  border-radius: 20px; */
 }
+
 .blinky {
   background-image: url(./img/blinky.png);
   background-color: var(--bcg);
   background-repeat: no-repeat;
   background-size: contain;
-  /* /* background-color: red; */
   border-radius: 0;
   border: none;
 }
+
 .pinky {
   background-image: url(./img/pinky.png);
   background-color: var(--bcg);
@@ -175,6 +176,7 @@ body {
   border-radius: 0;
   border: none;
 }
+
 .inky {
   background-image: url(./img/inky.png);
   background-color: var(--bcg);
@@ -183,6 +185,7 @@ body {
   border-radius: 0;
   border: none;
 }
+
 .clyde {
   background-image: url(./img/clyde.png);
   background-color: var(--bcg);
@@ -191,6 +194,7 @@ body {
   border-radius: 0;
   border: none;
 }
+
 .ghosts-scared {
   background-image: url(./img/ghost-scared.png);
   background-color: var(--bcg);
@@ -198,49 +202,67 @@ body {
   border-radius: 0;
   border: none;
 }
-/* buttons  */
+
+/* buttons */
 .buttons {
-  margin: 0 auto;
-  /* background-color: wheat; */
+  margin: 20px auto 0 auto;
   width: var(--width-height);
-  height: 400px;
+  height: 220px;
   position: relative;
   display: none;
 }
+
 .button {
   font-family: "Press Start 2P", cursive;
   position: absolute;
-  width: 100px;
-  height: 100px;
-  font-size: 1.1rem;
-  margin: 10px;
+  width: 80px;
+  height: 80px;
+  font-size: 1rem;
   padding: 10px;
   cursor: pointer;
-}
-.button-up {
-  left: 300px;
-  right: 50px;
-}
-.button-down {
-  top: 110px;
-  left: 300px;
-}
-.button-left {
-  top: 110px;
-  left: 190px;
-}
-.button-right {
-  top: 110px;
-  right: 174px;
+  background-color: #333;
+  color: white;
+  border: 2px solid white;
+  border-radius: 10px;
 }
 
-@media screen and (max-width: 800px) {
+.button-up {
+  top: 0px;
+  left: 290px;
+}
+
+.button-down {
+  top: 110px;
+  left: 290px;
+}
+
+.button-left {
+  top: 110px;
+  left: 195px;
+}
+
+.button-right {
+  top: 110px;
+  left: 385px;
+}
+
+/* Responsywność dla urządzeń mobilnych */
+@media screen and (max-width: 750px) {
+  :root {
+    --width-height: 100%;
+  }
+
+  .grid {
+    transform: scale(0.52); /* Skaluje planszę, by zmieściła się na ekranie telefonu */
+    transform-origin: top center;
+    margin-bottom: -370px; /* Kompensuje skalowanie siatki */
+  }
+
   .buttons {
     display: inherit;
   }
 
-  .game {
-    width: 100%;
-    height: 100vh;
+  .title-container p {
+    font-size: 2.2rem;
   }
 }
