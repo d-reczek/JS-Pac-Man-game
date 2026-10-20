@@ -1,4 +1,4 @@
-// Pac-Man - Complete Version with Optimized AI & Fixes
+// Pac-Man - Complete Cleaned Version with Ghost Lair Exit & AI
 
 function init() {
   const winDiv = document.querySelector(".win");
@@ -206,9 +206,10 @@ function init() {
   if (btnUp) btnUp.addEventListener("click", () => handleMovement("up"));
   if (btnDown) btnDown.addEventListener("click", () => handleMovement("down"));
 
-  // --- INTELIGENTNA LOGIKA DUCHÓW (KAŻDY ROBI CO INNEGO) ---
+  // --- INTELIGENTNA LOGIKA DUCHÓW ---
   let timerBlinky = NaN, timerInky = NaN, timerPinky = NaN, timerClyde = NaN;
   let blinkyPosition = 348, inkyPosition = 351, pinkyPosition = 404, clydePosition = 407;
+  const startDelay = 100;
 
   function getBestMoveForGhost(currentPos, targetX, targetY) {
     const directions = [-1, +1, -width, +width];
@@ -219,8 +220,7 @@ function init() {
       let nextPos = currentPos + dir;
       if (
         nextPos >= 0 && nextPos < squares.length &&
-        !squares[nextPos].classList.contains("wall") &&
-        !squares[nextPos].classList.contains("ghost-lair")
+        !squares[nextPos].classList.contains("wall")
       ) {
         const [nextX, nextY] = getCoordinates(nextPos);
         const dist = Math.pow(nextX - targetX, 2) + Math.pow(nextY - targetY, 2);
@@ -233,7 +233,7 @@ function init() {
     return bestMove;
   }
 
-  function handleGhostMove(ghostName, currentPos, getTargetFunc, speed) {
+  function handleGhostMove(ghostName, currentPos, getTargetFunc) {
     if (gameEnded) return currentPos;
 
     squares[currentPos].classList.remove(ghostName, "ghosts-scared");
@@ -242,13 +242,12 @@ function init() {
     const [targetX, targetY] = getTargetFunc(currentPos, pacManX, pacManY);
 
     let nextPos = ghostsScared 
-      ? [ -1, +1, -width, +width ][Math.floor(Math.random() * 4)] + currentPos // Ucieczka (losowy ruch)
+      ? [ -1, +1, -width, +width ][Math.floor(Math.random() * 4)] + currentPos
       : getBestMoveForGhost(currentPos, targetX, targetY);
 
     if (
       nextPos >= 0 && nextPos < squares.length &&
-      !squares[nextPos].classList.contains("wall") &&
-      !squares[nextPos].classList.contains("ghost-lair")
+      !squares[nextPos].classList.contains("wall")
     ) {
       currentPos = nextPos;
     }
@@ -256,14 +255,13 @@ function init() {
     squares[currentPos].classList.add(ghostName);
     if (ghostsScared) squares[currentPos].classList.add("ghosts-scared");
 
-    // Kolizja z Pac-Manem
     if (currentPos === pacManPosition) {
       if (ghostsScared) {
         squares[currentPos].classList.remove(ghostName, "ghosts-scared");
         score += 20;
         scoreSpan.textContent = score;
         updateHighScore();
-        currentPos = 348; // Respawn w bazie
+        currentPos = 348;
       } else {
         checkGameOver();
       }
@@ -273,56 +271,130 @@ function init() {
     return currentPos;
   }
 
-  // 1. BLINKY (Czerwony) – Agresywnie ściga bezpośrednio Pac-Mana
-  function startBlinky() {
-    timerBlinky = setInterval(() => {
-      blinkyPosition = handleGhostMove("blinky", blinkyPosition, () => getCoordinates(pacManPosition), 180);
-    }, 180);
+  // 1. BLINKY (Czerwony)
+  function moveGhostBlinky() {
+    setTimeout(() => {
+      squares[348].classList.add("blinky");
+      setTimeout(() => {
+        squares[349].classList.add("blinky");
+        squares[348].classList.remove("blinky");
+        setTimeout(() => {
+          squares[349].classList.remove("blinky");
+          squares[321].classList.add("blinky");
+          setTimeout(() => {
+            squares[321].classList.remove("blinky");
+            squares[293].classList.add("blinky");
+            blinkyPosition = 293;
+            timerBlinky = setInterval(() => {
+              blinkyPosition = handleGhostMove("blinky", blinkyPosition, () => getCoordinates(pacManPosition));
+            }, 180);
+          }, startDelay);
+        }, startDelay);
+      }, startDelay);
+    }, startDelay * 4);
   }
 
-  // 2. PINKY (Różowy) – Zachodzi Pac-Mana od przodu (celuje 4 pola w przód)
-  function startPinky() {
-    timerPinky = setInterval(() => {
-      pinkyPosition = handleGhostMove("pinky", pinkyPosition, () => {
-        let [x, y] = getCoordinates(pacManPosition);
-        if (pacManDirection === "up") y -= 4;
-        else if (pacManDirection === "down") y += 4;
-        else if (pacManDirection === "left") x -= 4;
-        else if (pacManDirection === "right") x += 4;
-        return [x, y];
-      }, 190);
-    }, 190);
+  // 2. INKY (Cyjanowy)
+  function moveGhostInky() {
+    setTimeout(() => {
+      squares[351].classList.add("inky");
+      setTimeout(() => {
+        squares[350].classList.add("inky");
+        squares[351].classList.remove("inky");
+        setTimeout(() => {
+          squares[350].classList.remove("inky");
+          squares[322].classList.add("inky");
+          setTimeout(() => {
+            squares[322].classList.remove("inky");
+            squares[294].classList.add("inky");
+            inkyPosition = 294;
+            timerInky = setInterval(() => {
+              inkyPosition = handleGhostMove("inky", inkyPosition, (curr, pX, pY) => [Math.abs(pX - 5), Math.abs(pY - 5)]);
+            }, 200);
+          }, startDelay);
+        }, startDelay);
+      }, startDelay);
+    }, startDelay * 4);
   }
 
-  // 3. INKY (Cyjanowy) – Półaktywny pomocnik (patroluje sektor / porusza się w pobliżu)
-  function startInky() {
-    timerInky = setInterval(() => {
-      inkyPosition = handleGhostMove("inky", inkyPosition, (curr, pX, pY) => {
-        return [Math.abs(pX - 5), Math.abs(pY - 5)]; // Kluczy wokół celu
-      }, 200);
-    }, 200);
+  // 3. PINKY (Różowy)
+  function moveGhostPinky() {
+    setTimeout(() => {
+      squares[404].classList.add("pinky");
+      setTimeout(() => {
+        squares[405].classList.add("pinky");
+        squares[404].classList.remove("pinky");
+        setTimeout(() => {
+          squares[405].classList.remove("pinky");
+          squares[377].classList.add("pinky");
+          setTimeout(() => {
+            squares[377].classList.remove("pinky");
+            squares[349].classList.add("pinky");
+            setTimeout(() => {
+              squares[349].classList.remove("pinky");
+              squares[321].classList.add("pinky");
+              setTimeout(() => {
+                squares[321].classList.remove("pinky");
+                squares[293].classList.add("pinky");
+                pinkyPosition = 293;
+                timerPinky = setInterval(() => {
+                  pinkyPosition = handleGhostMove("pinky", pinkyPosition, () => {
+                    let [x, y] = getCoordinates(pacManPosition);
+                    if (pacManDirection === "up") y -= 4;
+                    else if (pacManDirection === "down") y += 4;
+                    else if (pacManDirection === "left") x -= 4;
+                    else if (pacManDirection === "right") x += 4;
+                    return [x, y];
+                  });
+                }, 190);
+              }, startDelay);
+            }, startDelay);
+          }, startDelay);
+        }, startDelay);
+      }, startDelay);
+    }, startDelay * 6);
   }
 
-  // 4. CLYDE (Pomarańczowy) – Tchórz: ściga, a gdy podejdzie za blisko, ucieka do rogu
-  function startClyde() {
-    timerClyde = setInterval(() => {
-      clydePosition = handleGhostMove("clyde", clydePosition, (curr, pX, pY) => {
-        const [cX, cY] = getCoordinates(curr);
-        const dist = Math.abs(cX - pX) + Math.abs(cY - pY);
-        if (dist > 6) {
-          return [pX, pY]; // Ściga
-        } else {
-          return [0, 30];  // Ucieka w lewy dolny róg
-        }
-      }, 210);
-    }, 210);
+  // 4. CLYDE (Pomarańczowy)
+  function moveGhostClyde() {
+    setTimeout(() => {
+      squares[407].classList.add("clyde");
+      setTimeout(() => {
+        squares[406].classList.add("clyde");
+        squares[407].classList.remove("clyde");
+        setTimeout(() => {
+          squares[406].classList.remove("clyde");
+          squares[378].classList.add("clyde");
+          setTimeout(() => {
+            squares[378].classList.remove("clyde");
+            squares[350].classList.add("clyde");
+            setTimeout(() => {
+              squares[350].classList.remove("clyde");
+              squares[322].classList.add("clyde");
+              setTimeout(() => {
+                squares[322].classList.remove("clyde");
+                squares[294].classList.add("clyde");
+                clydePosition = 294;
+                timerClyde = setInterval(() => {
+                  clydePosition = handleGhostMove("clyde", clydePosition, (curr, pX, pY) => {
+                    const [cX, cY] = getCoordinates(curr);
+                    const dist = Math.abs(cX - pX) + Math.abs(cY - pY);
+                    return dist > 6 ? [pX, pY] : [0, 30];
+                  });
+                }, 210);
+              }, startDelay);
+            }, startDelay);
+          }, startDelay);
+        }, startDelay);
+      }, startDelay);
+    }, startDelay * 6);
   }
 
-  // Opóźnienia startowe duchów
-  setTimeout(startBlinky, 2000);
-  setTimeout(startInky, 4000);
-  setTimeout(startPinky, 6000);
-  setTimeout(startClyde, 8000);
+  // Start duchów z opóźnieniem
+  setTimeout(moveGhostBlinky, 2000);
+  setTimeout(moveGhostInky, 4000);
+  setTimeout(moveGhostPinky, 6000);
+  setTimeout(moveGhostClyde, 8000);
 
   // Warunki wygranej i przegranej
   function checkWin() {
