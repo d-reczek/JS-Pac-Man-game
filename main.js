@@ -359,9 +359,6 @@ function init() {
         return false;
       }
 
-      // Prevent accidental row wrapping
-      // for horizontal movement.
-
       if (
         move.direction === -1 &&
         position % width === 0
@@ -409,10 +406,6 @@ function init() {
     });
 
     if (name === "clyde") {
-
-      // Clyde becomes less aggressive
-      // when he is close to Pac-Man.
-
       const [clydeX, clydeY] =
         getCoordinates(ghost.position);
 
@@ -577,7 +570,7 @@ function init() {
 
     if (winDiv) {
       winDiv.style.display =
-        "inherit";
+        "block";
     }
 
     updateHighScore(true);
@@ -605,10 +598,7 @@ function init() {
 
     if (winDiv) {
       winDiv.style.display =
-        "inherit";
-
-      winDiv.style.left =
-        "5%";
+        "block";
     }
 
     playSound(sounds.die);
@@ -651,7 +641,7 @@ function init() {
     }
   }
 
-  // Keyboard controls
+  // Controls
 
   document.addEventListener(
     "keydown",
@@ -681,8 +671,6 @@ function init() {
       }
     }
   );
-
-  // Mobile controls
 
   const mobileButtons = {
 
@@ -719,6 +707,6 @@ function init() {
 }
 
 window.addEventListener(
-  "load",
+  "DOMContentLoaded",
   init
 );
