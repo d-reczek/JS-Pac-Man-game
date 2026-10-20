@@ -78,15 +78,20 @@ body {
 
 .grid {
   background-color: var(--bcg);
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(28, 25px); /* 28 kolumn po 25px = 700px */
+  grid-template-rows: repeat(31, 25px);    /* 31 wierszy po 25px = 775px */
   width: 700px;
-  height: 700px;
+  height: 775px;
   border: var(--border-heigh) solid white;
+  box-sizing: border-box;
+  margin: 0 auto;
 }
+
 .grid div {
   width: var(--square);
   height: var(--square);
+  box-sizing: border-box;
 }
 .pac-dot {
   box-sizing: border-box;
