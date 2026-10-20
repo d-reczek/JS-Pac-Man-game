@@ -4,7 +4,7 @@
   --pac-man-color: #ffcc00;
   --bcg: rgb(0, 0, 0);
   --wall: rgb(0, 0, 255);
-  --width-height: 700px;
+  --width-height: 704px;
   --border-heigh: 2px;
   --square: 25px;
 }
@@ -12,12 +12,8 @@
 body {
   font-family: "Press Start 2P", cursive;
   background-color: var(--bcg);
-  margin: 0;
-  padding: 20px 0;
-  color: white;
 }
-
-/* title styles */
+/* title styles  */
 
 .game-title-container {
   box-sizing: border-box;
@@ -26,144 +22,146 @@ body {
   border-bottom: none;
   margin: 0 auto;
 }
-
 .title-container {
   background-color: orange;
+  /* width: 700px; */
+  /* margin: 0 auto; */
 }
-
 .title-container p {
   text-align: center;
   padding: 10px;
-  font-size: 3rem;
+  font-size: 6rem;
   color: yellow;
-  margin: 0;
 }
 
 /* score board styles */
-
 .score-board-container {
   background-color: red;
+  /* width: 700px; */
+  /* margin: 0 auto; */
 }
-
 .score-board {
   text-align: center;
-  font-size: 1.2rem;
+  font-size: 2rem;
   margin: 0;
   padding: 10px;
 }
 
 .highscore-container {
   text-align: center;
-  padding: 5px;
-  font-size: 1rem;
 }
 
-/* styles connected with win/lose game */
+/* styles conected with win/lose game  */
 
 .wrapper {
   width: var(--width-height);
   position: relative;
   margin: 0 auto;
 }
-
 .win {
   position: absolute;
   left: 10%;
   top: 200px;
   display: none;
-  z-index: 10;
 }
-
 .win-container p {
-  font-size: 4rem;
+  font-size: 10rem;
   color: red;
-  text-align: center;
 }
 
 .grid-container {
-  position: relative;
+  position: absolute;
   margin: 0 auto;
-  width: var(--width-height);
 }
 
-/* grid elements and characters styles */
+/* grid elements and characters styles*/
 
 .grid {
   background-color: var(--bcg);
-  display: grid;
-  grid-template-columns: repeat(28, 25px);
-  grid-template-rows: repeat(31, 25px);
+  display: flex;
+  flex-wrap: wrap;
   width: 700px;
-  height: 775px;
+  height: 700px;
   border: var(--border-heigh) solid white;
-  box-sizing: border-box;
-  margin: 0 auto;
 }
-
 .grid div {
   width: var(--square);
   height: var(--square);
-  box-sizing: border-box;
 }
-
 .pac-dot {
   box-sizing: border-box;
   background-color: var(--pac-man-color);
   border: 10px solid var(--bcg);
   border-radius: 15px;
 }
-
 .wall {
   box-sizing: border-box;
   background-color: var(--wall);
+  /* border: 1px solid var(--bcg); */
 }
-
 .ghost-lair {
-  /* dom duchów */
+  /* background-color: orange; */
 }
-
 .power-pellet {
   box-sizing: border-box;
   background-color: var(--pac-man-color);
   border: 5px solid var(--bcg);
   border-radius: 15px;
 }
-
-.pac-man,
-.pac-man-right,
-.pac-man-left,
-.pac-man-up,
-.pac-man-down {
+.pac-man {
+  background-image: url(./img/pac-man-left.png);
   background-repeat: no-repeat;
   background-size: contain;
+  /* background-color: var(--pac-man-color); */
+  /* height: 25; */
+  /* width: 25; */
+  /* border-radius: 20px; */
 }
-
-.pac-man,
+.pac-man-right {
+  background-image: url(./img//pac-man-right.png);
+  /* background-repeat: no-repeat;
+  background-size: contain;
+  /* background-color: var(--pac-man-color); */
+  /* height: 25;
+  width: 25;
+  border-radius: 20px; */
+}
 .pac-man-left {
   background-image: url(./img/pac-man-left.png);
+  /* background-repeat: no-repeat;
+  background-size: contain;
+  /* background-color: var(--pac-man-color); */
+  /* height: 25;
+  width: 25;
+  border-radius: 20px; */
 }
-
-.pac-man-right {
-  background-image: url(./img/pac-man-right.png);
-}
-
 .pac-man-up {
   background-image: url(./img/pac-man-up.png);
+  /* background-repeat: no-repeat;
+  background-size: contain;
+  /* background-color: var(--pac-man-color); */
+  /* height: 25;
+  width: 25;
+  border-radius: 20px; */
 }
-
 .pac-man-down {
   background-image: url(./img/pac-man-down.png);
+  /* background-repeat: no-repeat;
+  background-size: contain;
+  /* background-color: var(--pac-man-color); */
+  /* height: 25;
+  width: 25;
+  border-radius: 20px; */
 }
-
 .blinky {
   background-image: url(./img/blinky.png);
   background-color: var(--bcg);
   background-repeat: no-repeat;
   background-size: contain;
+  /* /* background-color: red; */
   border-radius: 0;
   border: none;
 }
-
 .pinky {
   background-image: url(./img/pinky.png);
   background-color: var(--bcg);
@@ -172,7 +170,6 @@ body {
   border-radius: 0;
   border: none;
 }
-
 .inky {
   background-image: url(./img/inky.png);
   background-color: var(--bcg);
@@ -181,7 +178,6 @@ body {
   border-radius: 0;
   border: none;
 }
-
 .clyde {
   background-image: url(./img/clyde.png);
   background-color: var(--bcg);
@@ -190,7 +186,6 @@ body {
   border-radius: 0;
   border: none;
 }
-
 .ghosts-scared {
   background-image: url(./img/ghost-scared.png);
   background-color: var(--bcg);
@@ -198,56 +193,49 @@ body {
   border-radius: 0;
   border: none;
 }
-
-/* mobile buttons */
-
+/* buttons  */
 .buttons {
-  margin: 20px auto 0 auto;
+  margin: 0 auto;
+  /* background-color: wheat; */
   width: var(--width-height);
-  height: 160px;
+  height: 400px;
   position: relative;
   display: none;
 }
-
 .button {
   font-family: "Press Start 2P", cursive;
   position: absolute;
-  width: 75px;
-  height: 75px;
-  font-size: 0.8rem;
+  width: 100px;
+  height: 100px;
+  font-size: 1.1rem;
+  margin: 10px;
+  padding: 10px;
   cursor: pointer;
-  background-color: #333;
-  color: white;
-  border: 2px solid white;
-  border-radius: 10px;
 }
-
 .button-up {
-  top: 0px;
-  left: 312px;
+  left: 300px;
+  right: 50px;
 }
-
 .button-down {
-  top: 80px;
-  left: 312px;
+  top: 110px;
+  left: 300px;
 }
-
 .button-left {
-  top: 40px;
-  left: 230px;
+  top: 110px;
+  left: 190px;
 }
-
 .button-right {
-  top: 40px;
-  left: 395px;
+  top: 110px;
+  right: 174px;
 }
 
 @media screen and (max-width: 800px) {
   .buttons {
-    display: block;
+    display: inherit;
   }
 
   .game {
     width: 100%;
+    height: 100vh;
   }
 }
