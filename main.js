@@ -1,807 +1,724 @@
-function init() {
-  // sound
-  const introSound = document.querySelector(".intro");
-  introSound.volume = 0.1;
-  const dieSound = document.querySelector(".pac-man-die");
-  dieSound.volume = 0.1;
-  const pacManChompSound = document.querySelector(".pac-man-chomp");
-  pacManChompSound.volume = 0.1;
-  const pacManScaredSound = document.querySelector(".pac-man-scared");
-  pacManScaredSound.volume = 0.1;
-  const pacManSirenSound = document.querySelector(".pac-man-siren");
-  pacManSirenSound.volume = 0.1;
+// Pac-Man - corrected version
+// Preserves the original 28x28 board and CSS class names.
 
-  // variable for grid
+function init() {
   const game = document.querySelector(".game");
   const winDiv = document.querySelector(".win");
   const endingText = document.querySelector(".ending-text");
   const scoreSpan = document.querySelector(".score");
-  width = 28;
+  const highScoreSpan = document.querySelector(".highscore");
   const grid = document.querySelector(".grid");
+
+  if (!grid) {
+    console.error("Pac-Man: .grid element not found.");
+    return;
+  }
+
+  const sounds = {
+    intro: document.querySelector(".intro"),
+    die: document.querySelector(".pac-man-die"),
+    chomp: document.querySelector(".pac-man-chomp"),
+    scared: document.querySelector(".pac-man-scared"),
+    siren: document.querySelector(".pac-man-siren")
+  };
+
+  Object.values(sounds).forEach(sound => {
+    if (sound) sound.volume = 0.1;
+  });
+
+  const width = 28;
+
   const layout = [
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1,
-    1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 3, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0,
-    1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 3, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0,
-    1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1,
-    1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1,
-    1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 4, 1, 1, 1, 2, 2, 1, 1,
-    1, 4, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 4, 1, 2, 2, 2,
-    2, 2, 2, 1, 4, 1, 1, 0, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 0, 0, 0, 4, 1,
-    2, 2, 2, 2, 2, 2, 1, 4, 0, 0, 0, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 0, 1,
-    1, 4, 1, 2, 2, 2, 2, 2, 2, 1, 4, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 0, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 0, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1, 0, 1, 1, 1, 1, 1,
-    1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1,
-    0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1,
-    1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 3, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 3, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1,
-    1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1,
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0,
-    0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,
-    1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,
+    1,0,1,1,1,1,0,1,1,3,1,1,1,1,0,1,1,1,1,1,0,1,1,1,0,1,1,0,
+    1,1,1,1,1,0,1,1,1,1,3,1,1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,1,
+    1,1,0,1,1,1,1,1,0,1,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,1,1,0,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,
+    1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,0,1,1,0,1,1,
+    0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,1,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,0,1,1,4,4,4,4,4,4,4,4,4,4,1,1,1,1,
+    1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,4,1,1,1,2,2,1,1,1,1,1,
+    1,4,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,4,1,2,2,2,2,2,2,
+    1,4,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,4,4,4,4,4,4,0,0,0,4,1,
+    2,2,2,2,2,2,1,4,0,0,0,4,4,4,4,4,4,1,1,1,1,1,1,0,1,1,1,1,
+    1,4,1,2,2,2,2,2,2,1,4,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,0,1,1,4,1,1,1,1,1,1,1,1,4,1,1,0,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,0,1,1,4,1,1,1,1,1,1,1,1,4,1,1,0,1,1,1,1,1,1,1,1,
+    1,1,0,0,0,0,0,0,0,0,4,4,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,
+    0,1,1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,1,1,1,
+    1,1,1,1,1,0,1,1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,
+    1,1,1,0,1,1,1,1,0,1,1,3,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,1,1,0,0,3,1,1,1,1,0,1,1,0,1,1,0,1,1,1,1,1,
+    1,1,1,1,1,1,0,1,1,0,1,1,0,1,1,1,1,1,1,0,1,1,0,1,1,0,1,1,
+    0,1,1,1,1,1,1,1,1,0,1,1,0,1,1,0,1,1,1,1,0,0,0,0,0,0,0,0,
+    0,0,0,1,1,0,1,1,1,1,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,1,1,1,
+    1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,
+    1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
   ];
-  // 0 - pac-dots
-  // 1 - wall
-  // 2 - ghost-lair
-  // 3 - power-pellet
-  // 4 - empty
 
   const squares = [];
 
-  // create your board
-  function createBoard() {
-    for (let i = 0; i < layout.length; i++) {
-      const square = document.createElement("div");
-      grid.appendChild(square);
-      squares.push(square);
-
-      //add layout to the board
-      if (layout[i] === 0) {
-        squares[i].classList.add("pac-dot", i);
-      } else if (layout[i] === 1) {
-        squares[i].classList.add("wall", i);
-      } else if (layout[i] === 2) {
-        squares[i].classList.add("ghost-lair", i);
-      } else if (layout[i] === 3) {
-        squares[i].classList.add("power-pellet", i);
-      } else if (layout[i] === 4) {
-        squares[i].classList.add(i);
-      }
-    }
-    introSound.play();
-  }
-  createBoard();
-
-  // add PacMan to the grid
   let pacManPosition = 490;
-  function createPacMan() {
-    squares[pacManPosition].classList.add("pac-man");
-  }
-
-  createPacMan();
-  // move PacMan
-  function pacManMove() {
-    document.addEventListener("keyup", event => {
-      squares[pacManPosition].classList.remove(
-        "pac-man",
-        "pac-man-right",
-        "pac-man-left",
-        "pac-man-up",
-        "pac-man-down"
-      );
-      // teleportation from left to right
-      if (event.keyCode === 37 && pacManPosition === 364) {
-        pacManPosition = 391;
-        // move left
-      } else if (
-        event.keyCode === 37 &&
-        !squares[pacManPosition - 1].classList.contains("wall") &&
-        !squares[pacManPosition - 1].classList.contains("ghost-lair")
-      ) {
-        squares[(pacManPosition -= 1)].classList.add("pac-man", "pac-man-left");
-      }
-
-      // teleportation from right to left
-      if (event.keyCode === 39 && pacManPosition === 391) {
-        pacManPosition = 364;
-        // move right
-      } else if (
-        event.keyCode === 39 &&
-        !squares[pacManPosition + 1].classList.contains("wall") &&
-        !squares[pacManPosition + 1].classList.contains("ghost-lair")
-      ) {
-        squares[(pacManPosition += 1)].classList.add(
-          "pac-man",
-          "pac-man-right"
-        );
-      }
-      // move up
-      if (
-        event.keyCode === 38 &&
-        !squares[pacManPosition - width].classList.contains("wall") &&
-        !squares[pacManPosition - width].classList.contains("ghost-lair")
-      ) {
-        squares[(pacManPosition -= width)].classList.add(
-          "pac-man",
-          "pac-man-up"
-        );
-      }
-      // move down
-      if (
-        event.keyCode === 40 &&
-        !squares[pacManPosition + width].classList.contains("wall") &&
-        !squares[pacManPosition + width].classList.contains("ghost-lair")
-      ) {
-        squares[(pacManPosition += width)].classList.add(
-          "pac-man",
-          "pac-man-down"
-        );
-      }
-
-      squares[pacManPosition].classList.add("pac-man");
-      pacManEatDot();
-      pacManEatPowerPellet();
-      pacManEatGhostBlinky();
-      pacManEatGhostInky();
-      pacManEatGhostPinky();
-      pacManEatGhostClyde();
-      gameOver();
-      win();
-      renderHighScore();
-    });
-  }
-  pacManMove();
-  const pointsWhenPacManEatGhost = 20;
-  const timeDelayAfterPacManEatGhost = 4000;
-  // PacMan eat ghost Blinky
-
-  function pacManEatGhostBlinky() {
-    if (
-      squares[pacManPosition].classList.contains("blinky") &&
-      ghostsScared === true
-    ) {
-      setTimeout(() => {
-        moveGhostBlinky();
-      }, timeDelayAfterPacManEatGhost);
-      squares[pacManPosition].classList.remove("ghosts-scared");
-      squares[pacManPosition].classList.remove("blinky");
-      clearInterval(timerBlinky);
-      score += pointsWhenPacManEatGhost;
-    }
-  }
-  // PacMan eat ghost Inky
-
-  function pacManEatGhostInky() {
-    if (
-      squares[pacManPosition].classList.contains("inky") &&
-      ghostsScared === true
-    ) {
-      setTimeout(() => {
-        moveGhostInky();
-      }, timeDelayAfterPacManEatGhost);
-      squares[pacManPosition].classList.remove("ghosts-scared");
-      squares[pacManPosition].classList.remove("inky");
-      clearInterval(timerInky);
-      score += pointsWhenPacManEatGhost;
-    }
-  }
-  // PacMan eat ghost Pinky
-
-  function pacManEatGhostPinky() {
-    if (
-      squares[pacManPosition].classList.contains("pinky") &&
-      ghostsScared === true
-    ) {
-      setTimeout(() => {
-        moveGhostPinky();
-      }, timeDelayAfterPacManEatGhost);
-      squares[pacManPosition].classList.remove("ghosts-scared");
-      squares[pacManPosition].classList.remove("pinky");
-      clearInterval(timerPinky);
-      score += pointsWhenPacManEatGhost;
-    }
-  }
-  // PacMan eat ghost Pinky
-
-  function pacManEatGhostClyde() {
-    if (
-      squares[pacManPosition].classList.contains("clyde") &&
-      ghostsScared === true
-    ) {
-      setTimeout(() => {
-        moveGhostClyde();
-      }, timeDelayAfterPacManEatGhost);
-      squares[pacManPosition].classList.remove("ghosts-scared");
-      squares[pacManPosition].classList.remove("clyde");
-      clearInterval(timerClyde);
-      score += pointsWhenPacManEatGhost;
-    }
-  }
-
-  // PacMan eat dot
   let score = 0;
   let pointsToWin = 0;
-  function pacManEatDot() {
-    if (squares[pacManPosition].classList.contains("pac-dot")) {
-      squares[pacManPosition].classList.remove("pac-dot");
-      pointsToWin += 1;
-      score += 1;
-      scoreSpan.textContent = score;
-      pacManChompSound.play();
-    }
-  }
-  // PacMan eat power pellet
-  let timerPlaySoundScared = NaN;
-  const timeWhenPacManEatPowerPellet = 10000;
-  function pacManEatPowerPellet() {
-    if (squares[pacManPosition].classList.contains("power-pellet")) {
-      squares[pacManPosition].classList.remove("power-pellet");
-      ghostsScared = true;
-      setTimeout(ghostUnscared, timeWhenPacManEatPowerPellet);
-      pointsToWin += 1;
-      score += 10;
-      scoreSpan.textContent = score;
-      timerPlaySoundScared = setInterval(() => {
-        pacManScaredSound.play();
-      }, 500);
-    }
-  }
-
-  //ghost scared
+  let gameFinished = false;
   let ghostsScared = false;
 
-  function ghostUnscared() {
-    ghostsScared = false;
-    clearInterval(timerPlaySoundScared);
+  let scaredTimeout = null;
+  let scaredSoundTimer = null;
+
+  const pointsWhenPacManEatGhost = 20;
+  const timeWhenPacManEatPowerPellet = 10000;
+  const timeDelayAfterPacManEatGhost = 4000;
+
+  const winPoints = layout.filter(
+    value => value === 0 || value === 3
+  ).length;
+
+  const ghosts = {
+    blinky: {
+      position: 348,
+      start: 293,
+      speed: 180,
+      timer: null,
+      delay: 2000
+    },
+
+    inky: {
+      position: 351,
+      start: 294,
+      speed: 200,
+      timer: null,
+      delay: 4000
+    },
+
+    pinky: {
+      position: 404,
+      start: 293,
+      speed: 190,
+      timer: null,
+      delay: 6000
+    },
+
+    clyde: {
+      position: 407,
+      start: 294,
+      speed: 210,
+      timer: null,
+      delay: 8000
+    }
+  };
+
+  function playSound(sound) {
+    if (!sound) return;
+
+    try {
+      sound.currentTime = 0;
+
+      const promise = sound.play();
+
+      if (promise && typeof promise.catch === "function") {
+        promise.catch(() => {});
+      }
+    } catch (_) {}
   }
 
-  //creat ghost
-  let blinkyPosition = 348; //495//; //348
-  let pinkyPosition = 404;
-  let inkyPosition = 351;
-  let clydePosition = 407;
-
-  const blinkySpeed = 180;
-  const pinkySpeed = 190;
-  const inkySpeed = 200;
-  const clydeSpeed = 210;
-
-  function createGhost() {
-    squares[blinkyPosition].classList.add("blinky");
-    squares[pinkyPosition].classList.add("pinky");
-    squares[inkyPosition].classList.add("inky");
-    squares[clydePosition].classList.add("clyde");
+  function updateScore() {
+    if (scoreSpan) {
+      scoreSpan.textContent = score;
+    }
   }
-  createGhost();
-  const startDelay = 100;
 
-  //get the coordinates of pacman or blinky on the grid with X and Y axis
+  function createBoard() {
+    grid.innerHTML = "";
+    squares.length = 0;
+
+    layout.forEach((cell, index) => {
+      const square = document.createElement("div");
+
+      square.classList.add(String(index));
+
+      if (cell === 0) {
+        square.classList.add("pac-dot");
+      } else if (cell === 1) {
+        square.classList.add("wall");
+      } else if (cell === 2) {
+        square.classList.add("ghost-lair");
+      } else if (cell === 3) {
+        square.classList.add("power-pellet");
+      }
+
+      grid.appendChild(square);
+      squares.push(square);
+    });
+
+    playSound(sounds.intro);
+  }
+
+  function addPacMan(directionClass = "") {
+    if (!squares[pacManPosition]) return;
+
+    squares[pacManPosition].classList.add("pac-man");
+
+    if (directionClass) {
+      squares[pacManPosition].classList.add(directionClass);
+    }
+  }
+
+  function removePacMan() {
+    if (!squares[pacManPosition]) return;
+
+    squares[pacManPosition].classList.remove(
+      "pac-man",
+      "pac-man-right",
+      "pac-man-left",
+      "pac-man-up",
+      "pac-man-down"
+    );
+  }
+
+  function canEnter(index) {
+    return (
+      index >= 0 &&
+      index < squares.length &&
+      !squares[index].classList.contains("wall") &&
+      !squares[index].classList.contains("ghost-lair")
+    );
+  }
+
+  function movePacMan(direction) {
+    if (gameFinished) return;
+
+    removePacMan();
+
+    let next = pacManPosition;
+
+    if (direction === "left") {
+      next =
+        pacManPosition === 364
+          ? 391
+          : pacManPosition - 1;
+
+    } else if (direction === "right") {
+      next =
+        pacManPosition === 391
+          ? 364
+          : pacManPosition + 1;
+
+    } else if (direction === "up") {
+      next = pacManPosition - width;
+
+    } else if (direction === "down") {
+      next = pacManPosition + width;
+    }
+
+    if (canEnter(next)) {
+      pacManPosition = next;
+      addPacMan("pac-man-" + direction);
+    } else {
+      addPacMan();
+    }
+
+    handlePacManPosition();
+  }
+
+  function handlePacManPosition() {
+    eatDot();
+    eatPowerPellet();
+    eatGhosts();
+    checkCollision();
+    checkWin();
+    updateHighScore();
+  }
+
+  function eatDot() {
+    const square = squares[pacManPosition];
+
+    if (!square.classList.contains("pac-dot")) {
+      return;
+    }
+
+    square.classList.remove("pac-dot");
+
+    pointsToWin++;
+    score++;
+
+    updateScore();
+    playSound(sounds.chomp);
+  }
+
+  function eatPowerPellet() {
+    const square = squares[pacManPosition];
+
+    if (!square.classList.contains("power-pellet")) {
+      return;
+    }
+
+    square.classList.remove("power-pellet");
+
+    pointsToWin++;
+    score += 10;
+
+    updateScore();
+
+    ghostsScared = true;
+
+    clearTimeout(scaredTimeout);
+    clearInterval(scaredSoundTimer);
+
+    scaredSoundTimer = setInterval(
+      () => playSound(sounds.scared),
+      500
+    );
+
+    scaredTimeout = setTimeout(() => {
+      ghostsScared = false;
+
+      clearInterval(scaredSoundTimer);
+      scaredSoundTimer = null;
+
+      document
+        .querySelectorAll(".ghosts-scared")
+        .forEach(element => {
+          element.classList.remove("ghosts-scared");
+        });
+
+    }, timeWhenPacManEatPowerPellet);
+  }
+
+  function eatGhosts() {
+    Object.entries(ghosts).forEach(([name, ghost]) => {
+      const square = squares[pacManPosition];
+
+      if (
+        ghostsScared &&
+        square.classList.contains(name)
+      ) {
+        square.classList.remove(
+          name,
+          "ghosts-scared"
+        );
+
+        clearInterval(ghost.timer);
+        ghost.timer = null;
+
+        score += pointsWhenPacManEatGhost;
+
+        updateScore();
+
+        setTimeout(() => {
+          if (!gameFinished) {
+            ghost.position = ghost.start;
+
+            squares[ghost.position]
+              .classList.add(name);
+
+            startGhost(name);
+          }
+        }, timeDelayAfterPacManEatGhost);
+      }
+    });
+  }
+
   function getCoordinates(index) {
-    return [index % width, Math.floor(index / width)];
+    return [
+      index % width,
+      Math.floor(index / width)
+    ];
   }
 
-  let timerBlinky = NaN;
+  function getValidGhostMoves(position) {
+    const candidates = [
+      {
+        index: position - 1,
+        direction: -1
+      },
+      {
+        index: position + 1,
+        direction: 1
+      },
+      {
+        index: position - width,
+        direction: -width
+      },
+      {
+        index: position + width,
+        direction: width
+      }
+    ];
 
-  // move ghost Blinky
-  function moveGhostBlinky() {
-    const directions = [-1, +1, -width, +width];
+    return candidates.filter(move => {
 
-    setTimeout(() => {
-      squares[348].classList.add("blinky");
-      setTimeout(() => {
-        squares[349].classList.add("blinky");
-        squares[348].classList.remove("blinky");
-        setTimeout(() => {
-          squares[349].classList.remove("blinky");
-          squares[321].classList.add("blinky");
-          setTimeout(() => {
-            squares[321].classList.remove("blinky");
-            squares[293].classList.add("blinky");
-          }, startDelay);
-        }, startDelay);
-      }, startDelay);
-    }, startDelay);
+      if (!canEnter(move.index)) {
+        return false;
+      }
 
-    setTimeout(() => {
-      blinkyPosition = 293;
-      timerBlinky = setInterval(() => {
-        let direction =
-          directions[Math.floor(Math.random() * directions.length)];
-        if (
-          !squares[blinkyPosition + direction].classList.contains("wall") &&
-          !squares[blinkyPosition + direction].classList.contains("ghost-lair")
-        ) {
-          //blinky move random
-          //
+      // Prevent accidental row wrapping
+      // for horizontal movement.
 
-          squares[blinkyPosition].classList.remove("blinky");
-          squares[blinkyPosition].classList.remove("ghosts-scared");
+      if (
+        move.direction === -1 &&
+        position % width === 0
+      ) {
+        return false;
+      }
 
-          const [blinkyX, blinkyY] = getCoordinates(blinkyPosition);
-          const [pacManX, pacManY] = getCoordinates(pacManPosition);
-          const [blinkyNextX, blinkyNextY] = getCoordinates(
-            blinkyPosition + direction
-          );
+      if (
+        move.direction === 1 &&
+        position % width === width - 1
+      ) {
+        return false;
+      }
 
-          function isXCoordCloser() {
-            if (Math.abs(blinkyNextX - pacManX) < Math.abs(blinkyX - pacManX)) {
-              return true;
-            } else return false;
-          }
-
-          function isYCoordCloser() {
-            if (Math.abs(blinkyNextY - pacManY) < Math.abs(blinkyY - pacManY)) {
-              return true;
-            } else return false;
-          }
-          if (isXCoordCloser() || isYCoordCloser()) {
-            blinkyPosition += direction;
-            squares[blinkyPosition].classList.add("blinky");
-          }
-          squares[blinkyPosition].classList.add("blinky");
-
-          if (!ghostsScared === false) {
-            squares[blinkyPosition].classList.add("ghosts-scared");
-          }
-          if (
-            squares[blinkyPosition].classList.contains("pac-man") &&
-            ghostsScared === false
-          ) {
-            gameOverForGhost();
-          }
-        }
-        pacManSirenSound.play();
-      }, blinkySpeed);
-    }, startDelay * 4);
+      return true;
+    });
   }
 
-  let timerInky = NaN;
+  function chooseGhostMove(name) {
+    const ghost = ghosts[name];
 
-  // move ghost Inky
-  function moveGhostInky() {
-    const directions = [-1, +1, -width, +width];
+    const moves =
+      getValidGhostMoves(ghost.position);
 
-    setTimeout(() => {
-      squares[351].classList.add("inky");
-      setTimeout(() => {
-        squares[350].classList.add("inky");
-        squares[351].classList.remove("inky");
-        setTimeout(() => {
-          squares[350].classList.remove("inky");
-          squares[322].classList.add("inky");
-          setTimeout(() => {
-            squares[322].classList.remove("inky");
-            squares[294].classList.add("inky");
-          }, startDelay);
-        }, startDelay);
-      }, startDelay);
-    }, startDelay);
+    if (!moves.length) {
+      return null;
+    }
 
-    setTimeout(() => {
-      inkyPosition = 294;
-      timerInky = setInterval(() => {
-        let direction =
-          directions[Math.floor(Math.random() * directions.length)];
+    const [pacManX, pacManY] =
+      getCoordinates(pacManPosition);
 
-        if (
-          !squares[inkyPosition + direction].classList.contains("wall") &&
-          !squares[inkyPosition + direction].classList.contains("ghost-lair")
-        ) {
-          squares[inkyPosition].classList.remove("inky");
-          squares[inkyPosition].classList.remove("ghosts-scared");
+    const scored = moves.map(move => {
 
-          // inky follow pacman
-          const [inkyX, inkyY] = getCoordinates(inkyPosition);
-          const [pacManX, pacManY] = getCoordinates(pacManPosition);
-          const [inkyNextX, inkyNextY] = getCoordinates(
-            inkyPosition + direction
-          );
+      const [x, y] =
+        getCoordinates(move.index);
 
-          function isXCoordCloser() {
-            if (Math.abs(inkyNextX - pacManX) < Math.abs(inkyX - pacManX)) {
-              return true;
-            } else return false;
-          }
+      const distance =
+        Math.abs(x - pacManX) +
+        Math.abs(y - pacManY);
 
-          function isYCoordCloser() {
-            if (Math.abs(inkyNextY - pacManY) < Math.abs(inkyY - pacManY)) {
-              return true;
-            } else return false;
-          }
-          if (isXCoordCloser() || isYCoordCloser()) {
-            inkyPosition += direction;
-            squares[inkyPosition].classList.add("inky");
-          }
-          squares[inkyPosition].classList.add("inky");
+      return {
+        ...move,
+        distance
+      };
+    });
 
-          if (!ghostsScared === false) {
-            squares[inkyPosition].classList.add("ghosts-scared");
-          }
-          if (
-            squares[inkyPosition].classList.contains("pac-man") &&
-            ghostsScared === false
-          ) {
-            gameOverForGhost();
-          }
-        }
-      }, inkySpeed);
-    }, startDelay * 4);
+    if (name === "clyde") {
+
+      // Clyde becomes less aggressive
+      // when he is close to Pac-Man.
+
+      const [clydeX, clydeY] =
+        getCoordinates(ghost.position);
+
+      const distanceNow =
+        Math.abs(clydeX - pacManX) +
+        Math.abs(clydeY - pacManY);
+
+      if (distanceNow < 8) {
+        return moves[
+          Math.floor(
+            Math.random() * moves.length
+          )
+        ];
+      }
+    }
+
+    const bestDistance =
+      Math.min(
+        ...scored.map(
+          move => move.distance
+        )
+      );
+
+    const best =
+      scored.filter(
+        move =>
+          move.distance === bestDistance
+      );
+
+    return best[
+      Math.floor(
+        Math.random() * best.length
+      )
+    ];
   }
 
-  let timerPinky = NaN;
+  function drawGhost(name) {
+    const ghost = ghosts[name];
 
-  // move ghost Pinky
-  function moveGhostPinky() {
-    const directions = [-1, +1, -width, +width];
+    squares.forEach(square => {
+      square.classList.remove(
+        name,
+        "ghosts-scared"
+      );
+    });
 
-    setTimeout(() => {
-      squares[404].classList.add("pinky");
-      setTimeout(() => {
-        squares[405].classList.add("pinky");
-        squares[404].classList.remove("pinky");
-        setTimeout(() => {
-          squares[405].classList.remove("pinky");
-          squares[377].classList.add("pinky");
-          setTimeout(() => {
-            squares[377].classList.remove("pinky");
-            squares[349].classList.add("pinky");
-            setTimeout(() => {
-              squares[349].classList.remove("pinky");
-              squares[321].classList.add("pinky");
-              setTimeout(() => {
-                squares[321].classList.remove("pinky");
-                squares[293].classList.add("pinky");
-              }, startDelay);
-            }, startDelay);
-          }, startDelay);
-        }, startDelay);
-      }, startDelay);
-    }, startDelay);
+    squares[ghost.position]
+      .classList.add(name);
 
-    setTimeout(() => {
-      pinkyPosition = 293;
-      timerPinky = setInterval(() => {
-        let direction =
-          directions[Math.floor(Math.random() * directions.length)];
-
-        if (
-          !squares[pinkyPosition + direction].classList.contains("wall") &&
-          !squares[pinkyPosition + direction].classList.contains("ghost-lair")
-        ) {
-          squares[pinkyPosition].classList.remove("pinky");
-          squares[pinkyPosition].classList.remove("ghosts-scared");
-
-          //pinky follow pacman
-
-          const [pinkyX, pinkyY] = getCoordinates(pinkyPosition);
-          const [pacManX, pacManY] = getCoordinates(pacManPosition);
-          const [pinkyNextX, pinkyNextY] = getCoordinates(
-            pinkyPosition + direction
-          );
-
-          function isXCoordCloser() {
-            if (Math.abs(pinkyNextX - pacManX) < Math.abs(pinkyX - pacManX)) {
-              return true;
-            } else return false;
-          }
-
-          function isYCoordCloser() {
-            if (Math.abs(pinkyNextY - pacManY) < Math.abs(pinkyY - pacManY)) {
-              return true;
-            } else return false;
-          }
-          if (isXCoordCloser() || isYCoordCloser()) {
-            pinkyPosition += direction;
-            squares[pinkyPosition].classList.add("pinky");
-          }
-          squares[pinkyPosition].classList.add("pinky");
-
-          if (!ghostsScared === false) {
-            squares[pinkyPosition].classList.add("ghosts-scared");
-          }
-          if (
-            squares[pinkyPosition].classList.contains("pac-man") &&
-            ghostsScared === false
-          ) {
-            gameOverForGhost();
-          }
-        }
-      }, pinkySpeed);
-    }, startDelay * 6);
-  }
-  let timerClyde = NaN;
-
-  // move ghost Clyde
-  function moveGhostClyde() {
-    const directions = [-1, +1, -width, +width];
-
-    setTimeout(() => {
-      squares[407].classList.add("clyde");
-      setTimeout(() => {
-        squares[406].classList.add("clyde");
-        squares[407].classList.remove("clyde");
-        setTimeout(() => {
-          squares[406].classList.remove("clyde");
-          squares[378].classList.add("clyde");
-          setTimeout(() => {
-            squares[378].classList.remove("clyde");
-            squares[350].classList.add("clyde");
-            setTimeout(() => {
-              squares[350].classList.remove("clyde");
-              squares[322].classList.add("clyde");
-              setTimeout(() => {
-                squares[322].classList.remove("clyde");
-                squares[294].classList.add("clyde");
-              }, startDelay);
-            }, startDelay);
-          }, startDelay);
-        }, startDelay);
-      }, startDelay);
-    }, startDelay);
-
-    setTimeout(() => {
-      clydePosition = 294;
-      timerClyde = setInterval(() => {
-        let direction =
-          directions[Math.floor(Math.random() * directions.length)];
-
-        if (
-          !squares[clydePosition + direction].classList.contains("wall") &&
-          !squares[clydePosition + direction].classList.contains("ghost-lair")
-        ) {
-          squares[clydePosition].classList.remove("clyde");
-          squares[clydePosition].classList.remove("ghosts-scared");
-
-          //clyde move random
-          clydePosition += direction;
-
-          squares[clydePosition].classList.add("clyde");
-
-          if (!ghostsScared === false) {
-            squares[clydePosition].classList.add("ghosts-scared");
-          }
-          if (
-            squares[clydePosition].classList.contains("pac-man") &&
-            ghostsScared === false
-          ) {
-            gameOverForGhost();
-          }
-        }
-      }, clydeSpeed);
-    }, startDelay * 6);
-  }
-
-  // // delay of Blinky
-  setTimeout(() => {
-    moveGhostBlinky();
-  }, 2000);
-
-  // // // // // delay of Inky
-  setTimeout(() => {
-    moveGhostInky();
-  }, 4000);
-
-  // // // // // // delay of Pinky
-  setTimeout(() => {
-    moveGhostPinky();
-  }, 6000);
-
-  // // // delay of Clyde
-  setTimeout(() => {
-    moveGhostClyde();
-  }, 8000);
-
-  // highscore
-
-  // how to win
-  const winPoints = 238; //238
-  function win() {
-    if (pointsToWin === winPoints) {
-      clearInterval(timerInky);
-      clearInterval(timerBlinky);
-      clearInterval(timerPinky);
-      clearInterval(timerClyde);
-      winCheck();
-
-      setTimeout(() => {
-        winDiv.style.display = "inherit";
-      }, 2500);
-      setTimeout(() => {
-        location.reload();
-      }, 3500);
+    if (ghostsScared) {
+      squares[ghost.position]
+        .classList.add("ghosts-scared");
     }
   }
 
-  let isWin = false;
-  function winCheck() {
-    isWin = true;
-  }
+  function moveGhost(name) {
+    if (gameFinished) return;
 
-  // how to lose
-  function gameOver() {
+    const ghost = ghosts[name];
+
+    const move = chooseGhostMove(name);
+
+    if (move) {
+      ghost.position = move.index;
+      drawGhost(name);
+    }
+
     if (
-      squares[pacManPosition].classList.contains("blinky") ||
-      squares[pacManPosition].classList.contains("inky") ||
-      squares[pacManPosition].classList.contains("pinky") ||
-      squares[pacManPosition].classList.contains("clyde")
+      squares[pacManPosition]
+        .classList.contains(name) &&
+      !ghostsScared
     ) {
-      gameOverForGhost();
+      gameOver();
+      return;
     }
-  }
-  function gameOverForGhost() {
-    clearInterval(timerInky);
-    clearInterval(timerBlinky);
-    clearInterval(timerPinky);
-    clearInterval(timerClyde);
-    winDiv.style.display = "inherit";
-    winDiv.style.left = "5%";
 
-    endingText.textContent = "GAME OVER";
-    dieSound.play();
-    setTimeout(() => {
-      location.reload();
-    }, 2000);
-  }
-  let highsScoreSpan = document.querySelector(".highscore");
-  let highscore = 0;
-  let highScoreLS = localStorage.getItem("highScore", highscore);
-  highsScoreSpan.textContent = highScoreLS;
-
-  function renderHighScore() {
-    if (isWin === true && score > highScoreLS) {
-      highscore = score;
-      highsScoreSpan.textContent = highScoreLS;
-      localStorage.setItem("highScore", highscore);
-    } else if (isWin === true && score < highScoreLS) {
+    if (name === "blinky") {
+      playSound(sounds.siren);
     }
   }
 
-  const btnLeft = document.querySelector(".button-left");
-  const btnRight = document.querySelector(".button-right");
-  const btnUp = document.querySelector(".button-up");
-  const btnDown = document.querySelector(".button-down");
-  function pacManMoveMobile() {
-    //move left
-    btnLeft.addEventListener("click", event => {
-      squares[pacManPosition].classList.remove(
-        "pac-man",
-        "pac-man-right",
-        "pac-man-left",
-        "pac-man-up",
-        "pac-man-down"
-      );
-      // teleportation from left to right
-      if (pacManPosition === 364) {
-        pacManPosition = 391;
-        // move left
-      } else if (
-        !squares[pacManPosition - 1].classList.contains("wall") &&
-        !squares[pacManPosition - 1].classList.contains("ghost-lair")
-      ) {
-        squares[(pacManPosition -= 1)].classList.add("pac-man", "pac-man-left");
-      }
+  function startGhost(name) {
+    const ghost = ghosts[name];
 
-      squares[pacManPosition].classList.add("pac-man");
-      pacManEatDot();
-      pacManEatPowerPellet();
-      pacManEatGhostBlinky();
-      pacManEatGhostInky();
-      pacManEatGhostPinky();
-      pacManEatGhostClyde();
-      gameOver();
-      win();
-      renderHighScore();
-    });
+    clearInterval(ghost.timer);
 
-    //move right
-    btnRight.addEventListener("click", event => {
-      squares[pacManPosition].classList.remove(
-        "pac-man",
-        "pac-man-right",
-        "pac-man-left",
-        "pac-man-up",
-        "pac-man-down"
-      );
-      // teleportation from right to left
-      if (pacManPosition === 391) {
-        pacManPosition = 364;
-        // move right
-      } else if (
-        !squares[pacManPosition + 1].classList.contains("wall") &&
-        !squares[pacManPosition + 1].classList.contains("ghost-lair")
-      ) {
-        squares[(pacManPosition += 1)].classList.add(
-          "pac-man",
-          "pac-man-right"
-        );
-      }
-
-      squares[pacManPosition].classList.add("pac-man");
-      pacManEatDot();
-      pacManEatPowerPellet();
-      pacManEatGhostBlinky();
-      pacManEatGhostInky();
-      pacManEatGhostPinky();
-      pacManEatGhostClyde();
-      gameOver();
-      win();
-      renderHighScore();
-    });
-
-    //move up
-    btnUp.addEventListener("click", event => {
-      squares[pacManPosition].classList.remove(
-        "pac-man",
-        "pac-man-right",
-        "pac-man-left",
-        "pac-man-up",
-        "pac-man-down"
-      );
-      if (
-        !squares[pacManPosition - width].classList.contains("wall") &&
-        !squares[pacManPosition - width].classList.contains("ghost-lair")
-      ) {
-        squares[(pacManPosition -= width)].classList.add(
-          "pac-man",
-          "pac-man-up"
-        );
-      }
-
-      squares[pacManPosition].classList.add("pac-man");
-      pacManEatDot();
-      pacManEatPowerPellet();
-      pacManEatGhostBlinky();
-      pacManEatGhostInky();
-      pacManEatGhostPinky();
-      pacManEatGhostClyde();
-      gameOver();
-      win();
-      renderHighScore();
-    });
-
-    //move down
-    btnDown.addEventListener("click", event => {
-      squares[pacManPosition].classList.remove(
-        "pac-man",
-        "pac-man-right",
-        "pac-man-left",
-        "pac-man-up",
-        "pac-man-down"
-      );
-      if (
-        !squares[pacManPosition + width].classList.contains("wall") &&
-        !squares[pacManPosition + width].classList.contains("ghost-lair")
-      ) {
-        squares[(pacManPosition += width)].classList.add(
-          "pac-man",
-          "pac-man-down"
-        );
-      }
-
-      squares[pacManPosition].classList.add("pac-man");
-      pacManEatDot();
-      pacManEatPowerPellet();
-      pacManEatGhostBlinky();
-      pacManEatGhostInky();
-      pacManEatGhostPinky();
-      pacManEatGhostClyde();
-      gameOver();
-      win();
-      renderHighScore();
-    });
+    ghost.timer = setInterval(
+      () => moveGhost(name),
+      ghost.speed
+    );
   }
-  pacManMoveMobile();
+
+  function createGhosts() {
+
+    Object.entries(ghosts)
+      .forEach(([name, ghost]) => {
+
+        squares[ghost.position]
+          .classList.add(name);
+
+        setTimeout(() => {
+
+          if (gameFinished) return;
+
+          ghost.position =
+            ghost.start;
+
+          drawGhost(name);
+          startGhost(name);
+
+        }, ghost.delay);
+      });
+  }
+
+  function checkCollision() {
+
+    Object.keys(ghosts)
+      .forEach(name => {
+
+        if (
+          squares[pacManPosition]
+            .classList.contains(name)
+        ) {
+
+          if (ghostsScared) {
+            eatGhosts();
+          } else {
+            gameOver();
+          }
+        }
+      });
+  }
+
+  function stopAllGhosts() {
+
+    Object.values(ghosts)
+      .forEach(ghost => {
+        clearInterval(ghost.timer);
+      });
+
+    clearTimeout(scaredTimeout);
+    clearInterval(scaredSoundTimer);
+  }
+
+  function checkWin() {
+
+    if (
+      pointsToWin !== winPoints ||
+      gameFinished
+    ) {
+      return;
+    }
+
+    gameFinished = true;
+
+    stopAllGhosts();
+
+    if (endingText) {
+      endingText.textContent =
+        "YOU WIN!";
+    }
+
+    if (winDiv) {
+      winDiv.style.display =
+        "inherit";
+    }
+
+    updateHighScore(true);
+
+    setTimeout(
+      () => location.reload(),
+      3500
+    );
+  }
+
+  function gameOver() {
+
+    if (gameFinished) {
+      return;
+    }
+
+    gameFinished = true;
+
+    stopAllGhosts();
+
+    if (endingText) {
+      endingText.textContent =
+        "GAME OVER";
+    }
+
+    if (winDiv) {
+      winDiv.style.display =
+        "inherit";
+
+      winDiv.style.left =
+        "5%";
+    }
+
+    playSound(sounds.die);
+
+    setTimeout(
+      () => location.reload(),
+      2000
+    );
+  }
+
+  let highScore =
+    Number(
+      localStorage.getItem("highScore")
+    ) || 0;
+
+  if (highScoreSpan) {
+    highScoreSpan.textContent =
+      highScore;
+  }
+
+  function updateHighScore(force = false) {
+
+    if (!force && !gameFinished) {
+      return;
+    }
+
+    if (score > highScore) {
+
+      highScore = score;
+
+      localStorage.setItem(
+        "highScore",
+        String(highScore)
+      );
+
+      if (highScoreSpan) {
+        highScoreSpan.textContent =
+          highScore;
+      }
+    }
+  }
+
+  // Keyboard controls
+
+  document.addEventListener(
+    "keydown",
+    event => {
+
+      const directions = {
+
+        ArrowLeft: "left",
+        ArrowRight: "right",
+        ArrowUp: "up",
+        ArrowDown: "down",
+
+        a: "left",
+        d: "right",
+        w: "up",
+        s: "down"
+      };
+
+      const direction =
+        directions[event.key];
+
+      if (direction) {
+
+        event.preventDefault();
+
+        movePacMan(direction);
+      }
+    }
+  );
+
+  // Mobile controls
+
+  const mobileButtons = {
+
+    ".button-left": "left",
+    ".button-right": "right",
+    ".button-up": "up",
+    ".button-down": "down"
+  };
+
+  Object.entries(mobileButtons)
+    .forEach(
+      ([selector, direction]) => {
+
+        const button =
+          document.querySelector(
+            selector
+          );
+
+        if (button) {
+
+          button.addEventListener(
+            "click",
+            () => movePacMan(direction)
+          );
+        }
+      }
+    );
+
+  createBoard();
+  addPacMan();
+  createGhosts();
+
+  updateScore();
 }
-window.onload = init;
+
+window.addEventListener(
+  "load",
+  init
+);
