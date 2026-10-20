@@ -5,25 +5,34 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="./main.js" defer></script>
-    <link rel="stylesheet" href="./reset.css">
-    <link rel="stylesheet" href="./style.css">
+    <title>PAC-MAN</title>
+    
+    <!-- Czcionki i ikona -->
     <link rel="icon" href="./img/pac-man-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <title>PAC-MAN</title>
+
+    <!-- Style (Reset zawsze przed style.css) -->
+    <link rel="stylesheet" href="./reset.css">
+    <link rel="stylesheet" href="./style.css">
+
+    <!-- Skrypt z atrybutem defer -->
+    <script src="./main.js" defer></script>
 </head>
 
 <body>
-    <div class="sounds">
+    <!-- Sekcja dźwięków -->
+    <div class="sounds" style="display: none;">
         <audio class="intro" src="./sound/pacman_beginning.wav"></audio>
         <audio class="pac-man-chomp" src="./sound/pacman_chomp.wav"></audio>
         <audio class="pac-man-die" src="./sound/pacman_death.wav"></audio>
         <audio class="pac-man-siren" src="./sound/pac-man-siren.mp3"></audio>
         <audio class="pac-man-scared" src="./sound/Pac-man-scared.mp3"></audio>
     </div>
+
     <div class="game">
+        <!-- Nagłówek i punkty -->
         <div class="game-title-container">
             <div class="title-container">
                 <p>PAC-MAN</p>
@@ -33,25 +42,29 @@
                 <p class="highscore-container">Highscore <span class="highscore">0</span></p>
             </div>
         </div>
+
+        <!-- Główna zawartość gry -->
         <div class="wrapper">
             <div class="grid-container">
                 <div class="grid"></div>
-                <div class="buttons">
-                    <button class="button button-up">Up</button>
-                    <button class="button button-down">Down</button>
-                    <button class="button button-left">Left</button>
-                    <button class="button button-right">Right</button>
-                </div>
             </div>
+
+            <!-- Przyciski mobilne -->
+            <div class="buttons">
+                <button class="button button-up">Up</button>
+                <button class="button button-down">Down</button>
+                <button class="button button-left">Left</button>
+                <button class="button button-right">Right</button>
+            </div>
+
+            <!-- Ekran wygranej / przegranej -->
             <div class="win">
                 <div class="win-container">
                     <p class="ending-text">You Won!</p>
                 </div>
             </div>
-
         </div>
     </div>
-
 </body>
 
 </html>
